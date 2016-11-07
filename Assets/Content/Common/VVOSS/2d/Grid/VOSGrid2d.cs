@@ -4,7 +4,19 @@ using System.Collections;
 namespace VVOSS.D2d
 {
 
+	public interface IVOSGrid2d
+	{
+		int rows { get; }
+		int columns { get; }
+		Vector2 size { get; }
+
+		void SetItem(int row, int column, Transform tr);
+		int GetRowByWorldPosition(Vector2 worldPosition);
+		int GetColumnByWorldPosition(Vector2 worldPosition);
+	}
+
 	public class VOSGrid2d : MonoBehaviour,
+		IVOSGrid2d,
 		IVOSBuilder
 	{
 

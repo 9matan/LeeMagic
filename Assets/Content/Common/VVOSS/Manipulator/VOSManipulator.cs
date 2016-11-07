@@ -1,109 +1,143 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public interface IVOSManipulator
-{
-	Vector2 position { get; }
-	bool isPressed { get; }
-
-	event VOSManipulator.OnReleased onReleased;
-	event VOSManipulator.OnPressed onPressed;
-
-	Vector3 ToWorldPosition(Camera camera);
-
-	void Clear();
-}
-
-public class VOSManipulator : MonoBehaviour,
-	IVOSManipulator,
-	IVOSBuilder
+namespace VVOSS
 {
 
-	public delegate void OnReleased(IVOSManipulator control);
-	public delegate void OnPressed(IVOSManipulator control);
+	using Events;
 
-	public event OnReleased onReleased = delegate { };
-	public event OnPressed onPressed = delegate { };
-
-	public Vector2 position { get; protected set; }
-	public bool isPressed { get; protected set; }
-
-	public Vector3 ToWorldPosition(Camera camera)
+	namespace Events
 	{
-		var pos = position;
-//		pos.y -= Screen.height;
-		return camera.ScreenToWorldPoint(pos);
+		public delegate void OnManipulatorAction(IVOSManipulator control);
 	}
 
-	protected void Update()
+	public interface IVOSManipulator :
+		IVOSManipulatorEvents
 	{
-		var currentPress = _IsPressed();
+		Vector2 position { get; }
+		bool isPressed { get; }		
 
-		if (currentPress)
-		{
-			position = _GetPosition();
-		}
+		Vector3 ToWorldPosition(Camera camera);
+	}
 
-		if (isPressed && !currentPress)
-		{
-			_OnReleased();
-		}
-		else if(!isPressed && currentPress)
-		{
-			_OnPressed();
-		}		
+	public interface IVOSManipulatorEvents
+	{
+		event OnManipulatorAction onReleased;
+		event OnManipulatorAction onPressed;
+	}
+
+	public class VOSManipulator : MonoBehaviour,
+		IVOSManipulator,
+		IVOSBuilder
+	{
 		
-		isPressed = currentPress;
-	}
 
-	protected void _OnReleased()
-	{
-		onReleased(this);
-	}
+		public Vector2 position { get; protected set; }
+		public bool isPressed { get; protected set; }
 
-	protected void _OnPressed()
-	{
-		onPressed(this);
-	}
+		public Vector3 ToWorldPosition(Camera camera)
+		{
+			return camera.ScreenToWorldPoint(position);
+		}
 
-	protected Vector2 _GetPosition()
-	{
-#if UNITY_EDITOR || UNITY_STANDALONE		
-		return Input.mousePosition;
+		protected void Update()
+		{
+			var currentPress = _IsPressed();
+
+		//	if (currentPress)
+		//	{
+				position = _GetPosition();
+		//	}
+
+			if (isPressed && !currentPress)
+			{
+				_OnReleased();
+			}
+			else if (!isPressed && currentPress)
+			{
+				_OnPressed();
+			}
+
+			isPressed = currentPress;
+		}
+
+		//
+		// < Events >
+		//
+
+		public event OnManipulatorAction onReleased = delegate { };
+		public event OnManipulatorAction onPressed = delegate { };
+
+		protected void _OnReleased()
+		{
+			onReleased(this);
+		}
+
+		protected void _OnPressed()
+		{
+			onPressed(this);
+		}
+
+		//
+		// </ Events >
+		//
+
+		protected Vector2 _GetPosition()
+		{
+#if UNITY_EDITOR || UNITY_STANDALONE
+			return Input.mousePosition;
 #elif UNITY_IOS || UNITY_ANDROID
 		return Input.GetTouch(0).position;
 #endif
-	}
+		}
 
-	protected bool _IsPressed()
-	{
-#if UNITY_EDITOR || UNITY_STANDALONE		
-		return Input.GetMouseButton(0);
+		protected bool _IsPressed()
+		{
+#if UNITY_EDITOR || UNITY_STANDALONE
+			return Input.GetMouseButton(0);
 #elif UNITY_IOS || UNITY_ANDROID
 		return Input.touchCount > 0;
 #endif
-	}
+		}
 
 
-	public void Clear()
-	{
-		onPressed = delegate { };
-		onReleased = delegate { };
-	}
 
+		public void Clear()
+		{
+			onPressed = delegate { };
+			onReleased = delegate { };
+		}
+
+
+
+		[ContextMenu("Build")]
+		public void Build()
+		{
+
+		}
 
 #if UNITY_EDITOR
 
-	[ContextMenu("Build")]
-	public void Build()
-	{
+		protected Color _gizmosColor = Color.green;
 
-	}
+		protected virtual void OnDrawGizmos()
+		{
+			_DrawPointer();
+		}
 
-#else
+		protected void _DrawPointer()
+		{
+			Color color = _gizmosColor;
+			Gizmos.color = _gizmosColor;
 
-	public void Build(){}
+			Gizmos.DrawSphere(
+				ToWorldPosition(Camera.main), 0.1f);
+
+			Gizmos.color = color;
+		}
 
 #endif
+
+	}
 
 }

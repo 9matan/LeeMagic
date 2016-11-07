@@ -5,7 +5,14 @@ using LeeMagic;
 namespace LeeMagic
 {
 
+	public interface ILeeBoardItem
+	{
+
+	}
+
 	public class LeeBoardItem : MonoBehaviour,
+		VVOSS.D2d.IVOSMap2dItem,
+		ILeeBoardItem,
 		IVOSBuilder
 	{
 
