@@ -33,7 +33,7 @@ namespace LeeMagic
 		}
 
 		protected void _InitializeItems()
-		{
+		{			
 			for (int i = 0; i < rows; ++i)
 			{
 				for(int j = 0; j < columns; ++j)
@@ -42,11 +42,12 @@ namespace LeeMagic
 					item.Initialize(_info);
 					item.type = ELeeBoardItemType.EMPTY;
 					item.updateView = true;
+					item.row = i;
+					item.column = j;
 					SetItem(i, j, item);
 				}
 			}
-		}
-
+		}		
 
 		//
 		// < Events >

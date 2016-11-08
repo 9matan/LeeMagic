@@ -37,7 +37,9 @@ namespace LeeMagic
 		IVOSTransformable
 	{
 		bool isElement { get; }
+		bool isEmpty { get; }
 
+		int edgesCount { get; }
 		IEnumerable<ILeeBoardItem> edges { get; }
 
 		void AddEdge(ILeeBoardItem edge);
@@ -61,15 +63,25 @@ namespace LeeMagic
 		IVOSBuilder
 	{
 
-		public IEnumerable<ILeeBoardItem> edges
-		{
-			get { return _edges; }
-		}
-
 		public bool isElement
 		{
 			get { return _type == ELeeBoardItemType.ELEMENT; }
 		}
+		public bool isEmpty
+		{
+			get { return _type == ELeeBoardItemType.EMPTY; }
+		}
+
+		public int							edgesCount
+		{
+			get { return _edges.Count; }
+		}
+		public IEnumerable<ILeeBoardItem>	edges
+		{
+			get { return _edges; }
+		}
+
+		
 
 		public ELeeBoardItemType		type
 		{

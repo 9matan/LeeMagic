@@ -162,6 +162,8 @@ namespace VVOSS.D2d
 		int			columns { get; }
 		Vector2		size { get; }
 		IVOSGrid2d	grid { get; }
+
+		bool IsValid(int row, int column);
 	}
 
 	public class VOSMap2d : MonoBehaviour,
@@ -242,6 +244,11 @@ namespace VVOSS.D2d
 		//
 		// </ Events >
 		//
+
+		public bool IsValid(int row, int column)
+		{
+			return row >= 0 && row < rows && column >= 0 && column < columns;
+		}
 
 		//
 		// < Clear >

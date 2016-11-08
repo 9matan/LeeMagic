@@ -24,7 +24,7 @@ namespace LeeMagic
 		public bool active
 		{
 			get { return _active; }
-			set { _active = value; }
+			set { SetActive(value); }
 		}
 
 		[SerializeField]
@@ -53,6 +53,13 @@ namespace LeeMagic
 		//
 		// </ Initialize >
 		//
+
+		public void SetActive(bool __active)
+		{
+			_active = __active;
+			if (!_active)
+				_itemEditor.gameObject.Hide();
+		}
 
 		//
 		// < Board events >
