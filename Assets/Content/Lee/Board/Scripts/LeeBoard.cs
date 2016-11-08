@@ -6,7 +6,17 @@ using VVOSS.D2d;
 namespace LeeMagic
 {
 
-	public class LeeBoard : VVOSS.D2d.VOSMap2d<LeeBoardItem>,
+	public interface ILeeBoard : IVOSMap2d<LeeBoardItem>,
+		ILeeBoardEvents
+	{
+	}
+
+	public interface ILeeBoardEvents : IVOSMap2dEvents<LeeBoardItem>
+	{
+	}
+
+	public class LeeBoard : VOSMap2d<LeeBoardItem>,
+		ILeeBoard,
 		IVOSBuilder
 	{
 
@@ -14,11 +24,6 @@ namespace LeeMagic
 		protected LeeBoardItemFactory _factory;
 		[SerializeField]
 		protected LeeBoardItemInfo _info;
-
-		protected void Awake()
-		{
-			Initialize();
-		}
 
 		public override void Initialize()
 		{
@@ -35,6 +40,8 @@ namespace LeeMagic
 				{
 					var item = _factory.Allocate();
 					item.Initialize(_info);
+					item.type = ELeeBoardItemType.EMPTY;
+					item.updateView = true;
 					SetItem(i, j, item);
 				}
 			}

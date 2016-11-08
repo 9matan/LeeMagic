@@ -10,6 +10,7 @@ namespace VVOSS.D2d
 	namespace Events
 	{
 		public delegate void OnMap2dAction<TItem>(IVOSMap2d<TItem> map) where TItem : IVOSMap2dItem;
+		public delegate void OnMapItem2dAction<TItem>(TItem item) where TItem : IVOSMap2dItem;
 	}
 
 	public interface IVOSMap2d<TItem> :
@@ -27,8 +28,9 @@ namespace VVOSS.D2d
 	}
 
 	public interface IVOSMap2dEvents<TItem>
+		 where TItem : IVOSMap2dItem
 	{
-
+		event OnMapItem2dAction<TItem> onSelected;
 	}
 
 	public class VOSMap2d<TItem> : VOSMap2d,
@@ -94,14 +96,14 @@ namespace VVOSS.D2d
 		// < Events >
 		//
 
-		public event OnMap2dAction<TItem> onSelected = delegate { };
+		public event OnMapItem2dAction<TItem> onSelected = delegate { };
 
 		protected override void _OnSeleceted(IVOSGrid2dPointer pointer)
 		{
 			base._OnSeleceted(pointer);
 			selecetedItem = GetItem(
 				pointer.selectedRow, pointer.selectedColumn);
-			onSelected(this);
+			onSelected(selecetedItem);
 		}
 
 		//

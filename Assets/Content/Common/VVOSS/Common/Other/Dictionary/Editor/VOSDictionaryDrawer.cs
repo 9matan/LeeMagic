@@ -150,7 +150,8 @@ public abstract class VOSDictionaryDrawer<TK, TV> : PropertyDrawer
 		{ typeof(Vector2), (rect, value) => EditorGUI.Vector2Field(rect, GUIContent.none, (Vector2)value) },
 		{ typeof(Vector3), (rect, value) => EditorGUI.Vector3Field(rect, GUIContent.none, (Vector3)value) },
 		{ typeof(Bounds), (rect, value) => EditorGUI.BoundsField(rect, (Bounds)value) },
-		{ typeof(Rect), (rect, value) => EditorGUI.RectField(rect, (Rect)value) }
+		{ typeof(Rect), (rect, value) => EditorGUI.RectField(rect, (Rect)value) },
+		{ typeof(Color), (rect, value) => EditorGUI.ColorField(rect, (Color)value) }
 		};
 
 	protected static T _ItemField<T>(Rect rect, Type type, T value)

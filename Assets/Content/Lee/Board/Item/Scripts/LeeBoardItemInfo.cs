@@ -26,16 +26,22 @@ namespace LeeMagic
 
 		public Sprite GetSpriteByTrackType(ELeeBoardItemTrackType type)
 		{
+			if (!_tracks.ContainsKey(type))
+				return null;
 			return _tracks[type];
 		}
 
 		public Sprite GetSpriteByType(ELeeBoardItemType type)
 		{
+			if (!_typeSprites.ContainsKey(type))
+				return null;
 			return _typeSprites[type];
 		}
 
 		public Color GetColorByState(ELeeBoardItemState state)
 		{
+			if (!_stateColors.ContainsKey(state))
+				return Color.white;
 			return _stateColors[state];
 		}
 	}

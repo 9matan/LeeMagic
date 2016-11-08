@@ -94,7 +94,7 @@ namespace VVOSS
 		protected bool _IsPressed()
 		{
 #if UNITY_EDITOR || UNITY_STANDALONE
-			return Input.GetMouseButton(0);
+			return Input.GetMouseButton(0) || Input.GetMouseButton(1);
 #elif UNITY_IOS || UNITY_ANDROID
 		return Input.touchCount > 0;
 #endif
@@ -127,6 +127,8 @@ namespace VVOSS
 
 		protected void _DrawPointer()
 		{
+			if (Camera.main == null) return;
+
 			Color color = _gizmosColor;
 			Gizmos.color = _gizmosColor;
 

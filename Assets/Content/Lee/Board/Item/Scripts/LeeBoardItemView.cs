@@ -22,7 +22,11 @@ namespace LeeMagic
 		}
 
 		[SerializeField]
-		protected SpriteRenderer _spriter;
+		protected SpriteRenderer	_spriter;
+		[SerializeField]
+		protected TextMesh			_idText;
+		[SerializeField]
+		protected TextMesh			_distanceText;
 
 		//
 		// < View >
@@ -32,6 +36,7 @@ namespace LeeMagic
 		{
 			_ViewType(item);
 			_ViewState(item);
+			_ViewText(item);
 		}
 
 		protected void _ViewType(ILeeBoardItem item)
@@ -50,6 +55,16 @@ namespace LeeMagic
 				item.state);
 		}
 
+		protected void _ViewText(ILeeBoardItem item)
+		{
+			if (item.type == ELeeBoardItemType.ELEMENT)
+				_idText.text = item.elementId.ToString();
+			else
+				_idText.text = string.Empty;
+
+			_distanceText.text = item.distance.ToString();
+		}
+
 		//
 		// </ View >
 		//
@@ -60,6 +75,10 @@ namespace LeeMagic
 		{
 			if (_spriter == null)
 				_spriter = gameObject.CreateChild("Sprite").AddComponent<SpriteRenderer>();
+			if (_idText == null)
+				_idText = gameObject.CreateChild("IdText").AddComponent<TextMesh>();
+			if (_distanceText == null)
+				_distanceText = gameObject.CreateChild("DistanceText").AddComponent<TextMesh>();
 		}		
 	}
 	
