@@ -110,7 +110,7 @@ namespace LeeMagic
 		public int						distance
 		{
 			get { return _distance; }
-			set { SetDistance(_distance); }
+			set { SetDistance(value); }
 		}
 
 		public int row

@@ -62,8 +62,9 @@ namespace LeeMagic
 		public void EditItem(ILeeBoardItem __item)
 		{
 			_ResetItem();
-
 			item = __item;
+			if (__item == null) return;
+
 			_elementId.transform.position = item.transform.position;
 			_elementId.transform.localPosition = new Vector3(
 				_elementId.transform.localPosition.x,

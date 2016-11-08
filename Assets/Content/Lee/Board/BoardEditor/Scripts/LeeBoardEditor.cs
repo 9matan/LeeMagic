@@ -10,9 +10,11 @@ namespace LeeMagic
 		ILeeBoard board { get; }
 
 		bool active { get; set; }
+		void Reset();
 	}
 
 	public class LeeBoardEditor : MonoBehaviour,
+		ILeeBoardEditor,
 		IVOSBuilder
 	{
 
@@ -58,14 +60,14 @@ namespace LeeMagic
 		{
 			_active = __active;
 			if (!_active)
-				_itemEditor.gameObject.Hide();
+				Reset();
 		}
 
-		//
-		// < Board events >
-		//
+	//
+	// < Board events >
+	//
 
-		protected void _OnItemSelected(LeeBoardItem item)
+	protected void _OnItemSelected(LeeBoardItem item)
 		{
 			if (!_active) return;
 
@@ -92,6 +94,7 @@ namespace LeeMagic
 
 		public void Reset()
 		{
+			_itemEditor.EditItem(null);
 			_itemEditor.gameObject.Hide();
 		}
 

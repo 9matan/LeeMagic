@@ -5,9 +5,24 @@ using LeeMagic;
 namespace LeeMagic
 {
 
+	public interface ILeeBoardManager
+	{
+		ILeeBoardEditor boardEditor { get; }
+	}
+
 	public class LeeBoardManager : MonoBehaviour,
+		ILeeBoardManager,
 		IVOSBuilder
 	{
+
+		public ILeeBoardEditor boardEditor
+		{
+			get { return _boardEditor; }
+		}
+		public ILeeBoard board
+		{
+			get { return _board; }
+		}
 
 		[SerializeField]
 		protected LeeBoard _board;
