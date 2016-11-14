@@ -19,7 +19,7 @@ namespace LeeMagic
 		{
 			get { return _boardEditor; }
 		}
-		public ILeeBoard board
+		public LeeBoard board
 		{
 			get { return _board; }
 		}
@@ -40,12 +40,12 @@ namespace LeeMagic
 			_boardEditor.Initialize(_board);
 			_boardEditor.active = true;
 		}
-		
+
 		[ContextMenu("Build")]
 		public void Build()
 		{
-		
-		}		
+
+		}
 	}
-	
+
 }

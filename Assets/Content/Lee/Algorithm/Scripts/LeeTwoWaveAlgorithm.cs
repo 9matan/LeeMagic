@@ -10,40 +10,6 @@ namespace LeeMagic
 		ILeeAlgorithm,
 		IVOSBuilder
 	{
-
-		public class UsedItems : Dictionary<ILeeBoardItem, HashSet<ILeeBoardItem>>
-		{
-			public bool Contains(ILeeBoardItem a, ILeeBoardItem b)
-			{
-				return (ContainsKey(a) && this[a].Contains(b)) || (ContainsKey(b) && this[b].Contains(a));
-			}
-
-			public void Add(ILeeBoardItem a, ILeeBoardItem b)
-			{
-				if (!ContainsKey(a))
-					Add(a, new HashSet<ILeeBoardItem>());
-				if (!ContainsKey(b))
-					Add(b, new HashSet<ILeeBoardItem>());
-
-				this[a].Add(b);
-				this[b].Add(a);
-			}
-		}
-
-		public class Ways : Dictionary<ILeeBoardItem, Dictionary<ILeeBoardItem, List<ILeeBoardItem>>>
-		{
-			public void AddWay(ILeeBoardItem a, ILeeBoardItem b, List<ILeeBoardItem> way)
-			{
-				if (!ContainsKey(a))
-					Add(a, new Dictionary<ILeeBoardItem, List<ILeeBoardItem>>());
-				if (!ContainsKey(b))
-					Add(b, new Dictionary<ILeeBoardItem, List<ILeeBoardItem>>());
-
-				this[a].Add(b, way);
-				this[b].Add(a, way);
-			}
-		}
-
 		public bool isRunning
 		{
 			get; protected set;
@@ -62,76 +28,64 @@ namespace LeeMagic
 		[SerializeField]
 		protected float _pairDelay = 0.5f;
 
-		protected ILeeBoard _board;
-		protected UsedItems _usedPairs;
-		protected Ways		_ways;
+		public ILeeBoard currentBoard
+		{
+			get { return _controller.currentBoard; }
+		}
 
-		public void Tracing(ILeeBoard __board)
+		public ILeeBoardItem from
+		{
+			get { return _controller.currentFrom; }
+		}
+
+		public ILeeBoardItem to
+		{
+			get { return _controller.currentTo; }
+		}
+
+		protected ILeeBoardController _controller;
+
+		public void Tracing(ILeeBoardController __controller)
 		{
 			isValid = true;
 			isRunning = true;
 			stop = false;
 
-			_board = __board;
-			_usedPairs = new UsedItems();
-			_ways = new Ways();
+			_controller = __controller;
 
-			 StartCoroutine(_IEHandleElements());
-		}		
+			StartCoroutine(_IEHandleElements());
+		}
 
 		protected IEnumerator _IEHandleElements()
 		{
-			var items = _GetSortedElements(_board);
+			ELeeAlgorithmNextEdgeResult res = ELeeAlgorithmNextEdgeResult.STOP;
 
-			foreach (var item in items)
+
+			while ((res = _controller.NextEdge()) != ELeeAlgorithmNextEdgeResult.STOP)
 			{
-				foreach (var next in item.edges)
+				if (!_controller.IsUsed(_controller.currentTo))
 				{
-					if (!_usedPairs.Contains(item, next))
+					isValid = true;
+					_controller.ResetCurrentBoard();
+
+					yield return StartCoroutine(_IEHandlePair(
+								_controller.currentFrom, _controller.currentTo));
+
+					while (!isValid)
 					{
+						_controller.NextBoard();
 						yield return StartCoroutine(_IEHandlePair(
-							item, next));
-						_usedPairs.Add(item, next);
+								_controller.currentFrom, _controller.currentTo));
 					}
-					else
-						continue;
-
-					if (!isValid || stop)
-						break;
-
-					yield return new WaitForSeconds(_pairDelay);
 				}
 
-				if (!isValid || stop)
+				if (stop)
 					break;
 
-				yield return _pairDelay;
+				yield return new WaitForSeconds(_pairDelay);
 			}
 
 			_Stop();
-		}
-
-		protected List<ILeeBoardItem> _GetSortedElements(ILeeBoard board)
-		{
-			var items = new List<ILeeBoardItem>();
-
-			for (int i = 0; i < board.rows; ++i)
-			{
-				for (int j = 0; j < board.columns; ++j)
-				{
-					if (board[i, j].isElement)
-						items.Add(board[i, j]);
-				}
-			}
-
-			items.Sort((ILeeBoardItem a, ILeeBoardItem b) =>
-			{
-				if (a.edgesCount > b.edgesCount)
-					return -1;
-				return 1;
-			});
-
-			return items;
 		}
 
 
@@ -148,8 +102,8 @@ namespace LeeMagic
 		};
 
 		protected ILeeBoardItem _middlePoint;
-		protected int[,]		_was;
-		Queue<ILeeBoardItem>	_q;
+		protected int[,] _was;
+		Queue<ILeeBoardItem> _q;
 
 		protected IEnumerator _IEHandlePair(ILeeBoardItem a, ILeeBoardItem b)
 		{
@@ -178,9 +132,12 @@ namespace LeeMagic
 			if (exist)
 			{
 				List<ILeeBoardItem> path = new List<ILeeBoardItem>();
+				Debug.Log("EXIST");
 				yield return StartCoroutine(
 					_IERestorePath(a, b, _middlePoint, path));
-				_ways.AddWay(a, b, path);
+
+
+				var way = new LeeAlgorithmWay(a, b, path);
 			}
 
 			a.state = ELeeBoardItemState.DEFAULT; b.state = ELeeBoardItemState.DEFAULT;
@@ -191,10 +148,10 @@ namespace LeeMagic
 			int r = item.row;
 			int c = item.column;
 
-			for(int i = 0; i < _mask.Count; ++i)
+			for (int i = 0; i < _mask.Count; ++i)
 			{
 				if (_HandleNeighbor(item, r + _mask[i].row, c + _mask[i].column))
-					return _board[r + _mask[i].row, c + _mask[i].column];
+					return currentBoard[r + _mask[i].row, c + _mask[i].column];
 			}
 
 			return null;
@@ -202,9 +159,9 @@ namespace LeeMagic
 
 		protected bool _HandleNeighbor(ILeeBoardItem parent, int row, int column)
 		{
-			if (!_board.IsValid(row, column) || !_board[row, column].isEmpty) return false;
+			if (!currentBoard.IsValid(row, column) || !currentBoard[row, column].isEmpty) return false;
 
-			var item = _board[row, column];
+			var item = currentBoard[row, column];
 
 			if (_was[row, column] != 0)
 			{
@@ -229,28 +186,28 @@ namespace LeeMagic
 		{
 			_ResetItems(100);
 
-			_was = new int[_board.rows, _board.columns];
+			_was = new int[currentBoard.rows, currentBoard.columns];
 			_q = new Queue<ILeeBoardItem>();
 		}
 
 		protected void _ResetItems(int distance)
 		{
-			for (int i = 0; i < _board.rows; ++i)
+			for (int i = 0; i < currentBoard.rows; ++i)
 			{
-				for (int j = 0; j < _board.columns; ++j)
+				for (int j = 0; j < currentBoard.columns; ++j)
 				{
-					_board[i, j].distance = distance;
-					if(_board[i, j].state != ELeeBoardItemState.TRACKED)
-						_board[i, j].state = ELeeBoardItemState.DEFAULT;
+					currentBoard[i, j].distance = distance;
+					if (currentBoard[i, j].state != ELeeBoardItemState.TRACKED)
+						currentBoard[i, j].state = ELeeBoardItemState.DEFAULT;
 				}
 			}
 		}
-		
+
 		// < restore >
 
 		protected IEnumerator _IERestorePath(ILeeBoardItem a, ILeeBoardItem b, ILeeBoardItem middle, List<ILeeBoardItem> path)
 		{
-		//	Debug.Log("Maddile: " + middle.row + " " + middle.column);
+			//	Debug.Log("Maddile: " + middle.row + " " + middle.column);
 
 			var mToa = new List<ILeeBoardItem>();
 			var cor = StartCoroutine(_RestorePath(middle, a, -1, mToa, 1));
@@ -267,7 +224,7 @@ namespace LeeMagic
 			path.AddRange(mToa);
 			path.AddRange(mTob);
 
-			for(int i = 1; i < path.Count-1; ++i)
+			for (int i = 1; i < path.Count - 1; ++i)
 			{
 				var f = _MoveTo(path[i - 1], path[i]);
 				var s = _MoveTo(path[i], path[i + 1]);
@@ -281,7 +238,7 @@ namespace LeeMagic
 				}
 				else
 				{
-					if(f == 0 && s == 2)
+					if (f == 0 && s == 2)
 						path[i].trackType = ELeeBoardItemTrackType.LEFT_TOP;
 					if (f == 0 && s == 3)
 						path[i].trackType = ELeeBoardItemTrackType.BOTTOM_LEFT;
@@ -328,8 +285,8 @@ namespace LeeMagic
 					var r = current.row + _mask[i].row;
 					var c = current.column + _mask[i].column;
 
-					if (_board.IsValid(r, c) && _was[r, c] == wasid)
-						mn = Mathf.Min(mn, _board[r, c].distance);
+					if (currentBoard.IsValid(r, c) && _was[r, c] == wasid)
+						mn = Mathf.Min(mn, currentBoard[r, c].distance);
 				}
 
 				for (int i = 0; i < _mask.Count; ++i)
@@ -337,10 +294,10 @@ namespace LeeMagic
 					var r = current.row + _mask[i].row;
 					var c = current.column + _mask[i].column;
 
-					if (_board.IsValid(r, c) && mn == _board[r, c].distance && _was[r, c] == wasid)
+					if (currentBoard.IsValid(r, c) && mn == currentBoard[r, c].distance && _was[r, c] == wasid)
 					{
-						dir[_MoveTo(current, _board[r, c])] = items.Count;
-						items.Add(_board[r, c]);
+						dir[_MoveTo(current, currentBoard[r, c])] = items.Count;
+						items.Add(currentBoard[r, c]);
 					}
 				}
 
@@ -363,7 +320,7 @@ namespace LeeMagic
 		{
 			if (current.column == next.column)
 			{
-				return ((current.row < next.row)?(2):(3));
+				return ((current.row < next.row) ? (2) : (3));
 			}
 			else
 				return ((current.column < next.column) ? (0) : (1));
@@ -379,21 +336,22 @@ namespace LeeMagic
 		{
 			_ResetItems(0);
 			isRunning = false;
+			_controller.OnStop();
 		}
 
 
-	/*	public void FindWay(ILeeBoardItem itemA, ILeeBoardItem itemB)
-		{
+		/*	public void FindWay(ILeeBoardItem itemA, ILeeBoardItem itemB)
+			{
 
-		}
-		*/
-		
-		
+			}
+			*/
+
+
 		[ContextMenu("Build")]
 		public void Build()
 		{
-		
-		}		
+
+		}
 
 
 		public struct Point2
@@ -408,5 +366,5 @@ namespace LeeMagic
 			}
 		}
 	}
-	
+
 }

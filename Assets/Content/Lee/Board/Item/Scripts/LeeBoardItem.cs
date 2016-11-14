@@ -45,6 +45,7 @@ namespace LeeMagic
 		void AddEdge(ILeeBoardItem edge);
 		void RemoveEdge(ILeeBoardItem edge);
 		bool ContainsEdge(ILeeBoardItem edge);
+		ILeeBoardItem GetEdge(int index);
 
 		ELeeBoardItemType type { get; set; }
 		ELeeBoardItemState state { get; set; }
@@ -72,42 +73,42 @@ namespace LeeMagic
 			get { return _type == ELeeBoardItemType.EMPTY; }
 		}
 
-		public int							edgesCount
+		public int edgesCount
 		{
 			get { return _edges.Count; }
 		}
-		public IEnumerable<ILeeBoardItem>	edges
+		public IEnumerable<ILeeBoardItem> edges
 		{
 			get { return _edges; }
 		}
 
-		
 
-		public ELeeBoardItemType		type
+
+		public ELeeBoardItemType type
 		{
 			get { return _type; }
 			set { SetType(value); }
 		}
-		public ELeeBoardItemState		state
+		public ELeeBoardItemState state
 		{
 			get { return _state; }
 			set { SetState(value); }
 		}
-		public ELeeBoardItemTrackType	trackType
+		public ELeeBoardItemTrackType trackType
 		{
 			get { return _trackType; }
 			set { SetTrackType(value); }
 		}
-		public ILeeBoardItemInfo		info
+		public ILeeBoardItemInfo info
 		{
 			get; protected set;
 		}
-		public int						elementId
+		public int elementId
 		{
 			get { return _elementId; }
 			set { SetElementId(value); }
 		}
-		public int						distance
+		public int distance
 		{
 			get { return _distance; }
 			set { SetDistance(value); }
@@ -150,7 +151,7 @@ namespace LeeMagic
 		[SerializeField]
 		protected bool _updateView = false;
 
-		protected HashSet<ILeeBoardItem> _edges = new HashSet<ILeeBoardItem>();
+		protected List<ILeeBoardItem> _edges = new List<ILeeBoardItem>();
 
 		//
 		// < Initialize >
@@ -165,6 +166,13 @@ namespace LeeMagic
 		// </ Initialize >
 		//
 
+		public ILeeBoardItem GetEdge(int index)
+		{
+			return _edges[index];
+		}
+
+
+
 		public void SetState(ELeeBoardItemState __state)
 		{
 			_state = __state;
@@ -176,7 +184,7 @@ namespace LeeMagic
 			if (__type != ELeeBoardItemType.ELEMENT)
 			{
 				_elementId = -1;
-				_ClearEdges();				
+				_ClearEdges();
 			}
 
 			_type = __type;
@@ -252,7 +260,7 @@ namespace LeeMagic
 		public void Build()
 		{
 			_view = gameObject.Build(_view, "View");
-		}		
+		}
 	}
-	
+
 }

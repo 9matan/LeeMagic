@@ -22,11 +22,11 @@ namespace LeeMagic
 		}
 
 		[SerializeField]
-		protected VOSIntInputField	_elementId;
+		protected VOSIntInputField _elementId;
 		[SerializeField]
-		protected Button			_clearButton;
+		protected Button _clearButton;
 		[SerializeField]
-		protected Button			_occupyButton;
+		protected Button _occupyButton;
 
 		public int elementId
 		{
@@ -46,6 +46,15 @@ namespace LeeMagic
 			_elementId.field.onEndEdit.AddListener(_OnIdChanged);
 			_clearButton.onClick.AddListener(_OnClearClick);
 			_occupyButton.onClick.AddListener(_OnOccupyClick);
+		}
+
+
+		protected void Update()
+		{
+			if (Input.GetKeyDown(KeyCode.X))
+				_OnClearClick();
+			if (Input.GetKeyDown(KeyCode.Z))
+				_OnOccupyClick();
 		}
 
 		protected void _UpdateUI()
@@ -73,7 +82,7 @@ namespace LeeMagic
 
 			_UpdateUI();
 			_ActivateEdges();
-		}		
+		}
 
 		public void AddEdge(ILeeBoardItem __item)
 		{
@@ -156,8 +165,8 @@ namespace LeeMagic
 		[ContextMenu("Build")]
 		public void Build()
 		{
-		
-		}		
+
+		}
 	}
-	
+
 }

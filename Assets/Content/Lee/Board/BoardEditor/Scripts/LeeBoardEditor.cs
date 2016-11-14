@@ -63,11 +63,11 @@ namespace LeeMagic
 				Reset();
 		}
 
-	//
-	// < Board events >
-	//
+		//
+		// < Board events >
+		//
 
-	protected void _OnItemSelected(LeeBoardItem item)
+		protected void _OnItemSelected(LeeBoardItem item)
 		{
 			if (!_active) return;
 
@@ -102,7 +102,7 @@ namespace LeeMagic
 		public void Build()
 		{
 			_itemEditor = gameObject.Build(_itemEditor, "ItemEditor");
-		}		
+		}
 	}
-	
+
 }

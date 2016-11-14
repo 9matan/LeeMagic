@@ -52,8 +52,8 @@ namespace LeeMagic
 		[ContextMenu("Build")]
 		public void Build()
 		{
-		
-		}		
+
+		}
 	}
-	
+
 }

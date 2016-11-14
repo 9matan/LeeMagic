@@ -9,6 +9,7 @@ namespace LeeMagic
 	public interface ILeeBoard : IVOSMap2d<LeeBoardItem>,
 		ILeeBoardEvents
 	{
+		void HideElements();
 	}
 
 	public interface ILeeBoardEvents : IVOSMap2dEvents<LeeBoardItem>
@@ -33,10 +34,10 @@ namespace LeeMagic
 		}
 
 		protected void _InitializeItems()
-		{			
+		{
 			for (int i = 0; i < rows; ++i)
 			{
-				for(int j = 0; j < columns; ++j)
+				for (int j = 0; j < columns; ++j)
 				{
 					var item = _factory.Allocate();
 					item.Initialize(_info);
@@ -47,7 +48,17 @@ namespace LeeMagic
 					SetItem(i, j, item);
 				}
 			}
-		}		
+		}
+
+		public void HideElements()
+		{
+			int cnum = _factory.transform.childCount;
+
+			for (int i = 0; i < cnum; ++i)
+			{
+				_factory.transform.GetChild(i).gameObject.Hide();
+			}
+		}
 
 		//
 		// < Events >
@@ -71,5 +82,5 @@ namespace LeeMagic
 			_factory = gameObject.Build(_factory, "ItemFactory");
 		}
 	}
-	
+
 }
